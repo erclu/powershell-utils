@@ -1,3 +1,6 @@
+[Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingWriteHost")]
+param()
+
 $job = Start-Job -Name "ExampleJob" -ScriptBlock {
   Start-Sleep -Seconds 5
   Write-Output "Hello from a job"
@@ -12,12 +15,12 @@ $cmdArgs = @{
     # Do things here
 
     # XXX Write-Output does not work here; the action runs as a job
-    # Write-Host "Hello from the handler"
+    Write-Host "Hello from the handler"
 
     # Cleanup resources
     if ($Sender.HasMoreData) {
-      # Write-Host "`njob $($Sender.Name) says:`n$(Receive-Job $Sender)"
-      # Write-Host -NoNewline (& prompt)
+      Write-Host "`njob $($Sender.Name) says:`n$(Receive-Job $Sender)"
+      Write-Host -NoNewline (& prompt)
     }
     Remove-Job $Sender.Id
 
