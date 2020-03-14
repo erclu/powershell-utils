@@ -1,5 +1,5 @@
 # Export Windows package manager programs
-function Export-Scoop {
+function Export-ScoopPackages {
   function Read-RawLine {
     Param(
       [String]
@@ -31,9 +31,9 @@ function Export-Scoop {
   $buckets = $parsed | Select-Object -Unique -ExpandProperty Bucket
 
   [ordered]@{
-    when     = (Get-Date -Format "o")
-    buckets  = $buckets
-    programs = $programs
+    When        = (Get-Date -Format "o")
+    UsedBuckets = $buckets
+    Programs    = $programs
   } |
     ConvertTo-Json
 }

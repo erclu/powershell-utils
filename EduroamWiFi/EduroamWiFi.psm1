@@ -47,11 +47,11 @@ function Connect-EduroamWiFi {
   [CmdletBinding()]
   param ()
 
-  Write-Verbose "Disable IPv6 interface"
-  Disable-NetAdapterBinding -Name $INTERFACE_ALIAS -ComponentID ms_tcpip6
+  # Write-Verbose "Disable IPv6 interface"
+  # Disable-NetAdapterBinding -Name $INTERFACE_ALIAS -ComponentID ms_tcpip6
 
   Write-Verbose "Set DNS client to default"
-  Set-DnsClientServerAddress -InterfaceAlias $INTERFACE_ALIAS -ResetServerAddresses -PassThru
+  Set-DnsClientServerAddress -PassThru -InterfaceAlias "$INTERFACE_ALIAS" -ResetServerAddresses
 
   # Clear-WiFiDnsCache
 }
@@ -60,8 +60,8 @@ function Disconnect-EduroamWiFi {
   [CmdletBinding()]
   param ()
 
-  Write-Verbose "Re-enable IPv6 interface"
-  Enable-NetAdapterBinding -Name $INTERFACE_ALIAS -ComponentID ms_tcpip6
+  # Write-Verbose "Re-enable IPv6 interface"
+  # Enable-NetAdapterBinding -Name $INTERFACE_ALIAS -ComponentID ms_tcpip6
 
   Write-Verbose "Set DNS client to Google"
   Set-DnsClientServerAddress -PassThru -InterfaceAlias "$INTERFACE_ALIAS" -ServerAddresses "8.8.8.8", "8.8.8.4", "2001:4860:4860::8888", "2001:4860:4860::8844"

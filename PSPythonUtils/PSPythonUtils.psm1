@@ -34,9 +34,13 @@ function Remove-VirtualEnv {
   )
 
   if ($PSCmdlet.ShouldProcess($VenvName)) {
-    Join-Path $Script:VENV_PATH $VenvName |
-      Get-Item |
-      Remove-Item -Recurse
+    $venvFullName = Join-Path $Script:VENV_PATH $VenvName | Get-Item
+
+    # classic remove-item
+    $venvFullName | Remove-Item -Recurse
+
+    # TODO use pipenv --rm from project folder to remove a virtualenv
+    # $projectFolderName = Join-Path $venvFullName ".project" | Get-Content
   }
 }
 
@@ -44,17 +48,19 @@ function Remove-UnusedVirtualenvs {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
   param()
 
-  Get-ChildItem $Script:VENV_PATH |
-    Where-Object {
-      $venv = $_
-      $projectFolderName = Get-Content (Join-Path $venv.FullName ".project")
+  process {
+    Get-ChildItem $Script:VENV_PATH |
+      Where-Object {
+        $venv = $_
+        $projectFolderName = Get-Content (Join-Path $venv.FullName ".project")
 
-      -not (Test-Path $projectFolderName)
-    } | ForEach-Object {
-      if ($PSCmdlet.ShouldProcess($_.Name)) {
-        Remove-Item -Recurse $_
+        -not (Test-Path $projectFolderName)
+      } | ForEach-Object {
+        if ($PSCmdlet.ShouldProcess($_.Name)) {
+          Remove-Item -Recurse $_
+        }
       }
-    }
+  }
 }
 
 function Add-PythonConfigsHere {
@@ -63,9 +69,11 @@ function Add-PythonConfigsHere {
     $configFilename = $_.Value
     $globalFile = Join-Path $Script:CONFIG_FOLDER $configFilename | Get-Item
 
-    New-Item -ItemType HardLink -Name $configFilename -Value $globalFile
+    # New-Item -ItemType HardLink -Name $configFilename -Value $globalFile
+    # Write-Output "hardlinked $tool"
 
-    Write-Output "hardlinked $tool"
+    Copy-Item -Path $globalFile -Destination $configFilename
+    Write-Output "copied $tool"
   }
 }
 

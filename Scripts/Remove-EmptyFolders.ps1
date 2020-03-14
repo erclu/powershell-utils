@@ -4,7 +4,15 @@ param (
   $Path = "."
 )
 
-Get-ChildItem -Recurse -Directory -LiteralPath $Path |
-  Where-Object { -not $_.GetFiles("*", "AllDirectories") } |
-  Where-Object { $PSCmdlet.ShouldProcess($_.Name, "Remove folder and subfolders") } |
-  Remove-Item -Recurse
+begin {
+}
+
+process {
+  Get-ChildItem -Recurse -Directory -LiteralPath $Path |
+    Where-Object { -not $_.GetFiles("*", "AllDirectories") } |
+    Where-Object { $PSCmdlet.ShouldProcess($_.Name, "Remove folder and subfolders") } |
+    Remove-Item -Recurse
+}
+
+end {
+}

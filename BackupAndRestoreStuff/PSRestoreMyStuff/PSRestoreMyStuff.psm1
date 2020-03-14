@@ -1,5 +1,5 @@
 
-function Install-Scoop {
+function Install-ScoopWithPackages {
   # # Set scoop install location via environment variable
   # $env:SCOOP = 'C:/Tools/scoop'
   # [environment]::setEnvironmentVariable('SCOOP', $env:SCOOP, 'User')
