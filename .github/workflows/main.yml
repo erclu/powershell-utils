@@ -9,6 +9,22 @@ on:
       - master
 
 jobs:
+  # TODO maybe use pester to run psscriptanalyzer?
+  lint:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Update PSScriptAnalyzer to latest version
+        run: Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
+        shell: pwsh
+
+      - name: run PSScriptAnalyzer
+        run: Invoke-ScriptAnalyzer -EnableExit -Settings PSScriptAnalyzerSettings.psd1 -Recurse -Path "."
+        shell: pwsh
+
+  # TODO check code coverage
   test:
     runs-on: ${{ matrix.os }}
 
@@ -27,19 +43,4 @@ jobs:
 
       - name: Run pester tests
         run: Invoke-Pester -EnableExit -Path "."
-        shell: pwsh
-
-  # TODO maybe use pester to run psscriptanalyzer?
-  lint:
-    runs-on: windows-latest
-
-    steps:
-      - uses: actions/checkout@v1
-
-      - name: Update PSScriptAnalyzer to latest version
-        run: Install-Module -Force -Scope CurrentUser -Name PSScriptAnalyzer
-        shell: pwsh
-
-      - name: run PSScriptAnalyzer
-        run: Invoke-ScriptAnalyzer -EnableExit -Settings PSScriptAnalyzerSettings.psd1 -Recurse -Path "."
         shell: pwsh

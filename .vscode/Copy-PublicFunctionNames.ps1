@@ -29,4 +29,4 @@ Get-ChildItem $ModuleFolder -Recurse -Exclude "*Config.ps1", $Exclude -Include "
 
 Get-ChildItem $ModuleFolder -Recurse -Exclude "*Config.ps1", $Exclude -Include "*.ps1" |
   ForEach-Object { "`"$($_.Name -replace ".ps1")`"" } |
-  Set-ClipboardText
+  Set-ClipboardText -PassThru

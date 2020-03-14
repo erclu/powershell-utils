@@ -2,20 +2,6 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "commitizen",
-      "type": "shell",
-      "command": "git cz",
-      "presentation": {
-        "echo": false,
-        "reveal": "always",
-        "focus": true,
-        "panel": "dedicated",
-        "showReuseMessage": false,
-        "clear": true
-      },
-      "problemMatcher": []
-    },
-    {
       "label": "copy public function names to clipboard",
       "type": "shell",
       "command": "./.vscode/Copy-PublicFunctionNames.ps1",
@@ -61,7 +47,7 @@
     {
       "label": "Run PSScriptAnalyzer",
       "type": "shell",
-      "command": "Invoke-ScriptAnalyzer -EnableExit -Settings PSScriptAnalyzerSettings.psd1 -Recurse -Path \".\";",
+      "command": "Invoke-ScriptAnalyzer -EnableExit -Settings PSScriptAnalyzerSettings.psd1 -Recurse -Path \".\" | Format-Table -Autosize -Wrap",
       "presentation": {
         "reveal": "silent",
         "panel": "dedicated",
