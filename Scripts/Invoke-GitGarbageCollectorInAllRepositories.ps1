@@ -4,7 +4,7 @@ param (
   [System.IO.DirectoryInfo]
   $RootFolder = $env:PROJECTS_FOLDER,
   [switch]
-  $Verbose
+  $Quiet
 )
 
 Write-Output "Searching for repositories in $RootFolder..."
@@ -21,11 +21,11 @@ $repos |
 
     Write-Output "running aggressive garbage collection in $workTree"
 
-    if ($Verbose) {
-      git --git-dir $gitDir gc --aggressive
+    if ($Quiet) {
+      git --git-dir $gitDir gc --aggressive | Out-Null
     }
     else {
-      git --git-dir $gitDir gc --aggressive | Out-Null
+      git --git-dir $gitDir gc --aggressive
     }
 
     if ($LASTEXITCODE) {
