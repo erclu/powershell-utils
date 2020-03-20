@@ -17,16 +17,21 @@ if (-not (Test-Path $Public)) {
   throw "No public folder found in module"
 }
 
-Get-ChildItem $ModuleFolder -Recurse -Exclude "*Config.ps1", $Exclude -Include "*.ps1" |
-  Where-Object FullName -notmatch 'Scripts' |
-  ForEach-Object {
-    $name = $_.Name -replace "\.ps1"
-    $functionName = (Get-Content $_ | Select-Object -First 1) -replace "function " -replace " {"
-    if ($functionName -ne $name) {
-      Write-Error -Message "File and Function have different names `n$_" -TargetObject $_
-    }
+$ensureFunctionsAreNamedCorrectly = {
+  $name = $_.Name -replace "\.ps1"
+  $functionName = (Get-Content $_ | Select-Object -First 1) -replace "function " -replace " {"
+
+  if ($functionName -ne $name) {
+    Write-Error -Message "File and Function have different names `n$_" -TargetObject $_
   }
+  else {
+    return $name
+  }
+}
 
 Get-ChildItem $ModuleFolder -Recurse -Exclude "*Config.ps1", $Exclude -Include "*.ps1" |
-  ForEach-Object { "`"$($_.Name -replace ".ps1")`"" } |
+  Where-Object FullName -NotMatch "Private" |
+  Where-Object FullName -NotMatch 'Scripts' |
+  ForEach-Object -Process $ensureFunctionsAreNamedCorrectly |
+  ForEach-Object { "`"$_`"" } |
   Set-ClipboardText -PassThru
