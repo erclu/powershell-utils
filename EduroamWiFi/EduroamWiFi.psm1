@@ -3,9 +3,9 @@
 function Clear-WiFiDnsCache {
 
   Write-Verbose "Flushing DNS cache"
-  ipconfig.exe -release "Wi-Fi" | Out-Null
-  ipconfig.exe -flushdns | Out-Null
-  ipconfig.exe -renew "Wi-Fi"
+  ipconfig -release "Wi-Fi" | Out-Null
+  ipconfig -flushdns | Out-Null
+  ipconfig -renew "Wi-Fi"
 }
 
 $INTERFACE_ALIAS = "Wi-Fi"

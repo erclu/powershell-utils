@@ -27,7 +27,7 @@ function Test-HasDirtyIndex {
     $gitDir
   )
 
-  return $null -ne (git.exe --git-dir $gitDir --work-tree $workTree status -s)
+  return $null -ne (git --git-dir $gitDir --work-tree $workTree status -s)
 }
 
 function Test-HasUnpushedCommits {
@@ -38,7 +38,7 @@ function Test-HasUnpushedCommits {
     $gitDir
   )
 
-  return $null -ne (git.exe --git-dir $gitDir --work-tree $workTree log --branches --not --remotes --oneline)
+  return $null -ne (git --git-dir $gitDir --work-tree $workTree log --branches --not --remotes --oneline)
 }
 
 function Test-HasForgottenStashes {
@@ -49,7 +49,7 @@ function Test-HasForgottenStashes {
     $gitDir
   )
 
-  return $null -ne (git.exe --git-dir $gitDir stash list)
+  return $null -ne (git --git-dir $gitDir stash list)
 }
 Write-Output "Searching for repositories in $RootFolder ..."
 

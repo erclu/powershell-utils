@@ -23,8 +23,8 @@ function Install-Pipx {
   $env:PIPX_BIN_DIR = 'C:/Tools/pipx/bin'
   [environment]::setEnvironmentVariable('PIPX_BIN_DIR', $env:PIPX_BIN_DIR, 'User')
 
-  python3.exe -m pip install pipx
-  python3.exe -m pipx ensurepath
+  python3 -m pip install pipx
+  python3 -m pipx ensurepath
 }
 
 # TODO finish implementing module

@@ -10,7 +10,7 @@ function Unlock-BitwardenDatabase {
     return
   }
 
-  $SESSION = bw.exe unlock --raw
+  $SESSION = bw unlock --raw
 
   if (Get-Module PSReadLine) {
     Write-Verbose "Removing PSReadline module"
@@ -36,16 +36,16 @@ function Get-BitwardenDatabase {
   [CmdletBinding()]
   param ()
 
-  $lastSync = (Get-Date) - (Get-Date (bw.exe sync --last))
+  $lastSync = (Get-Date) - (Get-Date (bw sync --last))
   if ($lastSync -ge [timespan]::FromMinutes(5)) {
     Write-Verbose "Syncing db"
-    bw.exe sync | Out-Null
+    bw sync | Out-Null
   }
   else {
     Write-Verbose "Using cached db"
   }
 
-  $rawOutput = bw.exe list items
+  $rawOutput = bw list items
   return " { `"root`":$rawOutput }" | ConvertFrom-Json | Select-Object -ExpandProperty root
   # TODO cast to classes defined in Classes.ps1?
 }

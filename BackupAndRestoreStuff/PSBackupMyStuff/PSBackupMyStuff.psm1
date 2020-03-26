@@ -53,7 +53,7 @@ function Export-NpmGlobalPackages {
 # "pip install" can parse a file
 function Export-PipxGlobalPackages {
   # TODO finish implementing
-  pipx.exe list | Where-Object { $_ -match "package (.*), Python" }
+  pipx list | Where-Object { $_ -match "package (.*), Python" }
 }
 
 function Export-EnvironmentVariables {
