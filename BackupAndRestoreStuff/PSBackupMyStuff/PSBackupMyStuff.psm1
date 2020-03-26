@@ -41,6 +41,7 @@ function Export-ScoopPackages {
 ## npm globals
 # "npm install" takes multiple arguments separated by space
 function Export-NpmGlobalPackages {
+  # FIXME not cross platform
   $rawList = npm.cmd list --global --depth=0 --parseable
 
   $baseFolder, $packages = $rawList
@@ -69,6 +70,7 @@ function Export-EnvironmentVariables {
 } # > EnvironmentVariables.json
 
 function Get-SomeInstalledPrograms {
+  # FIXME not cross platform
   Get-ItemProperty HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\* |
     Select-Object DisplayName, DisplayVersion, Publisher, InstallDate |
     Sort-Object DisplayName |

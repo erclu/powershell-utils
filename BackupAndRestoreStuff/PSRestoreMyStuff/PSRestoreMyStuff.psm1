@@ -9,15 +9,17 @@ function Install-ScoopWithPackages {
 
   Invoke-WebRequest -UseBasicParsing 'https://raw.githubusercontent.com/scoopinstaller/install/master/install.ps1' -OutFile install.ps1
 
-  .\install.ps1 -ScoopDir 'C:/Tools/scoop' -NoProxy -RunAsAdmin
+  # FIXME not cross platform
+  ./install.ps1 -ScoopDir 'C:/Tools/scoop' -NoProxy -RunAsAdmin
 
-  Remove-Item .\install.ps1
+  Remove-Item ./install.ps1
 
   # Add buckets & Install my stuff
   # TODO parse scoopedprograms.json and run commands!
 }
 
 function Install-Pipx {
+  # FIXME not cross platform
   $env:PIPX_HOME = 'C:/Tools/pipx'
   [environment]::setEnvironmentVariable('PIPX_HOME', $env:PIPX_HOME, 'User')
   $env:PIPX_BIN_DIR = 'C:/Tools/pipx/bin'

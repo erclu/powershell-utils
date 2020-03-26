@@ -38,7 +38,7 @@ function Set-CorrectDnsServer {
     Start-Process "pwsh" -Verb runAs -ArgumentList @(
       "-NoLogo"
       "-Command"
-      "& ""D:\Projects\powershell-utils\Scripts\Set-DnsServer.ps1"" -Interface $Interface -ServerName $ServerName; Start-Sleep -Seconds 5"
+      "& ""$PSScriptRoot/../Scripts/Set-DnsServer.ps1"" -Interface $Interface -ServerName $ServerName; Start-Sleep -Seconds 5"
     )
   }
 }

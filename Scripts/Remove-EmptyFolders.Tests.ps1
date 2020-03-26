@@ -19,7 +19,7 @@ Describe "Remove-EmptyFolders" {
   )
 
   # Act
-  . "$here\$sut" -Confirm:$false $testFolder
+  . "$here/$sut" -Confirm:$false $testFolder
 
   ## Assert
   It "does not remove non-empty folders" {
