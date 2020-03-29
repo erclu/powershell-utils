@@ -53,7 +53,15 @@ function Test-HasForgottenStashes {
 }
 Write-Output "Searching for repositories in $RootFolder ..."
 
-$repos = Get-ChildItem -Directory -Force -Recurse $RootFolder -Include ".git" -Exclude "node_modules"
+$repos = Get-ChildItem -Verbose -Directory -Force -Recurse $RootFolder |
+  Where-Object FullName -NotMatch "node_modules" |
+  Where-Object FullName -NotMatch "vendor" |
+  Where-Object FullName -NotMatch "Library" |
+  Where-Object FullName -Match ".git$" |
+  ForEach-Object {
+    Write-Verbose "scanning $($_.FullName)"
+    $_
+  }
 
 Write-Output "found $($repos.Length) repos; checking status..."
 
