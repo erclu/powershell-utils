@@ -23,6 +23,26 @@ function Get-ScoopSize {
   }
 }
 
+function Update-EverythingHaphazardly {
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+  param ()
+
+  if (-not $PSCmdlet.ShouldProcess("Update apps")) {
+    return
+  }
+
+  pipx upgrade-all
+
+  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+
+  npm update -g npm@7
+  npm update -g
+
+  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+
+  Update-ScoopAndCleanAfter
+}
+
 function Update-ScoopAndCleanAfter {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   param ()
@@ -118,6 +138,13 @@ function Test-BomHereRecursive {
     Where-Object { -not (Test-ContainsBOM $_) } |
     Select-Object FullName
 }
+
+function Get-BranchAndSha {
+  param ()
+
+  "$(git branch --show-current)-$(git rev-parse --short HEAD)"
+}
+
 function Find-Duplicates {
   [CmdletBinding()]
   param (
@@ -129,15 +156,18 @@ function Find-Duplicates {
 }
 
 function New-TemporaryDirectory {
-  $parent = [System.IO.Path]::GetTempPath()
-  [string] $name = [System.Guid]::NewGuid()
-  New-Item -ItemType Directory -Path (Join-Path $parent $name)
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
+  param()
+
+  if ($PSCmdlet.ShouldProcess("Create new temporary directory")) {
+    New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid()))
+  }
 }
 
-function New-FastTemporaryDirectory {
-  [string] $name = [System.Guid]::NewGuid()
-  New-Item -ItemType Directory -Path ("C:/TEMP-$name")
-}
+# function New-FastTemporaryDirectory {
+#   [string] $name = [System.Guid]::NewGuid()
+#   New-Item -ItemType Directory -Path ("C:/TEMP-$name")
+# }
 
 ########################################################################################################################
 ####################################### Hardlinks utils

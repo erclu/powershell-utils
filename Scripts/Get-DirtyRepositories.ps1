@@ -30,7 +30,7 @@ function Test-HasDirtyIndex {
   return $null -ne (git -C $path status -s)
 }
 
-function Test-HasRemote {
+function Test-HasNoRemote {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory)]
@@ -38,7 +38,7 @@ function Test-HasRemote {
     $path
   )
 
-  return $null -ne (git -C $path remote -v)
+  return $null -eq (git -C $path remote -v)
 }
 
 function Test-HasUnpushedCommits {
@@ -93,7 +93,7 @@ $repos |
     $workTree = Split-Path -Path $_ -Parent
 
     $dirtyIndex = Test-HasDirtyIndex $workTree
-    $hasRemote = Test-HasRemote $workTree
+    $hasNoRemote = Test-HasNoRemote $workTree
     $unpushedCommits = Test-HasUnpushedCommits $workTree
     $forgottenStashes = Test-HasForgottenStashes $workTree
     $ignoredFilesAndFolders = Test-HasIgnoredFilesAndFolder $workTree
@@ -101,9 +101,9 @@ $repos |
     [pscustomobject]@{
       PSTypename      = "GitRepo"
       Repo            = $workTree
-      AllGood         = -not ($dirtyIndex -or $hasRemote -or $unpushedCommits -or $forgottenStashes )
+      AllGood         = -not ($dirtyIndex -or $hasNoRemote -or $unpushedCommits -or $forgottenStashes )
       ChangesToCommit = $dirtyIndex
-      HasRemote       = $hasRemote
+      HasNoRemote     = $hasNoRemote
       CommitsToPush   = $unpushedCommits
       StashesToClear  = $forgottenStashes
       # AllGood does not count these
