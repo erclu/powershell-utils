@@ -30,7 +30,7 @@ function Update-ScoopAndCleanAfter {
   $telegram = "telegram"
 
   scoop update
-  $out = scoop status
+  $out = scoop status 6>&1
   $out
   if ($out -match $telegram) {
     Write-Output "stopping telegram..."
@@ -162,39 +162,6 @@ function Find-HardLinks {
 }
 
 ########################################################################################################################
-####################################### Send Magic Packet
-########################################################################################################################
-
-<#
-  .SYNOPSIS
-    Send a WOL packet to a broadcast address
-  .PARAMETER mac
-   The MAC address of the device that need to wake up
-  .PARAMETER ip
-   The IP address where the WOL packet will be sent to
-  .EXAMPLE
-   Send-WOL -mac 00:11:32:21:2D:11 -ip 192.168.8.255
-#>
-function Send-MagicPacket {
-  [CmdletBinding()]
-  param(
-    [Parameter(Mandatory = $True, Position = 1)]
-    [string]$mac,
-    [string]$ip = "255.255.255.255",
-    [int]$port = 9
-  )
-  $broadcast = [Net.IPAddress]::Parse($ip)
-
-  $mac = (($mac.replace(":", "")).replace("-", "")).replace(".", "")
-  $target = 0, 2, 4, 6, 8, 10 | ForEach-Object { [convert]::ToByte($mac.substring($_, 2), 16) }
-  $packet = (, [byte]255 * 6) + ($target * 16)
-
-  $UDPclient = New-Object System.Net.Sockets.UdpClient
-  $UDPclient.Connect($broadcast, $port)
-  [void]$UDPclient.Send($packet, 102)
-}
-
-########################################################################################################################
 ####################################### Misc
 ########################################################################################################################
 
@@ -236,30 +203,46 @@ function Get-OldVsCodeExtensions {
   $SPLITTER_REGEX = "^(?<name>.*?)-(?<version>$SEMVER_REGEX)$"
 
   # if (-not $Aggro) {
-  $DATETIME_CUTOFF = (Get-Date).AddDays(-7)
+  # $DATETIME_CUTOFF = (Get-Date).AddDays(-7)
   # }
   # else {
-  #   $DATETIME_CUTOFF = Get-Date
+  # $DATETIME_CUTOFF = Get-Date
   # }
 
-  Get-ChildItem -Directory -Path $VSCODE_EXTENSIONS_DIR |
-    Sort-Object -Descending CreationTime |
-    Where-Object LastWriteTime -GT $DATETIME_CUTOFF |
-    ForEach-Object {
-      $name = $_.Name
+  $parsedExtensionFolders = @(
+    Get-ChildItem -Directory -Path $VSCODE_EXTENSIONS_DIR |
+      Sort-Object -Descending CreationTime |
+      ForEach-Object {
+        $name = $_.Name
 
-      if (-not ($name -match $SPLITTER_REGEX)) {
-        Write-Error "this name is not correctly matched: $name"
-      }
+        if (-not ($name -match $SPLITTER_REGEX)) {
+          Write-Error "this name is not correctly matched: $name"
+        }
 
-      [pscustomobject]@{
-        Name      = $Matches.name
-        Version   = $Matches.version
-        Directory = $_
+        [pscustomobject]@{
+          Name      = $Matches.name
+          Version   = $Matches.version
+          Directory = $_
+        }
       }
-    } |
+  )
+
+  # $VSCODE_INSTALLED_EXTENSIONS = @(code --list-extensions) |
+  #   ForEach-Object {
+  #     [PSCustomObject]@{
+  #       Name = $_
+  #     }
+  #   }
+  # $uniqueExtensionFoldersFound = @($parsedExtensionFolders | Sort-Object Name -Unique)
+
+  # Compare-Object -PassThru $VSCODE_INSTALLED_EXTENSIONS $uniqueExtensionFoldersFound -Property Name |
+  #   Where-Object SideIndicator -match "=>" |
+  #   Select-Object Name, Version, Directory
+
+  $parsedExtensionFolders |
     Group-Object Name |
     Where-Object Count -GT 1 |
+    # Where-Object LastWriteTime -GT $DATETIME_CUTOFF |
     ForEach-Object {
       $newest, $old = $_.Group
 
