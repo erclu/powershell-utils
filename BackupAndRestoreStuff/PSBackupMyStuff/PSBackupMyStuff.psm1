@@ -42,7 +42,7 @@ function Export-ScoopPackages {
 # "npm install" takes multiple arguments separated by space
 function Export-NpmGlobalPackages {
   # FIXME not cross platform
-  $rawList = npm.cmd list --global --depth=0 --parseable
+  $rawList = npm list --global --depth=0 --parseable
 
   $baseFolder, $packages = $rawList
   $basePath = Join-Path $baseFolder "node_modules\"
