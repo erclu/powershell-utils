@@ -24,10 +24,21 @@ function Test-HasDirtyIndex {
   param (
     [Parameter(Mandatory)]
     [System.IO.DirectoryInfo]
-    $gitDir
+    $path
   )
 
-  return $null -ne (git --git-dir $gitDir --work-tree $workTree status -s)
+  return $null -ne (git -C $path status -s)
+}
+
+function Test-HasRemote {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory)]
+    [System.IO.DirectoryInfo]
+    $path
+  )
+
+  return $null -ne (git -C $path remote -v)
 }
 
 function Test-HasUnpushedCommits {
@@ -35,10 +46,10 @@ function Test-HasUnpushedCommits {
   param (
     [Parameter(Mandatory)]
     [System.IO.DirectoryInfo]
-    $gitDir
+    $path
   )
 
-  return $null -ne (git --git-dir $gitDir --work-tree $workTree log --branches --not --remotes --oneline)
+  return $null -ne (git -C $path log --branches --not --remotes --oneline)
 }
 
 function Test-HasForgottenStashes {
@@ -46,11 +57,23 @@ function Test-HasForgottenStashes {
   param (
     [Parameter(Mandatory)]
     [System.IO.DirectoryInfo]
-    $gitDir
+    $path
   )
 
-  return $null -ne (git --git-dir $gitDir stash list)
+  return $null -ne (git -C $path stash list)
 }
+
+function Test-HasIgnoredFilesAndFolder {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory)]
+    [System.IO.DirectoryInfo]
+    $path
+  )
+
+  return ( git -C $path status -s --ignored ) | Measure-Object | Select-Object -ExpandProperty Count
+}
+
 Write-Output "Searching for repositories in $RootFolder ..."
 
 $repos = Get-ChildItem -Verbose -Directory -Force -Recurse $RootFolder |
@@ -67,21 +90,20 @@ Write-Output "found $($repos.Length) repos; checking status..."
 
 $repos |
   ForEach-Object {
-    $gitDir = $_
     $workTree = Split-Path -Path $_ -Parent
 
-    $dirtyIndex = Test-HasDirtyIndex $gitDir
-    $unpushedCommits = Test-HasUnpushedCommits $gitDir
-    $forgottenStashes = Test-HasForgottenStashes $gitDir
-
-    # TODO might wanna refactor this
-    $ignoredFilesAndFolders = ( git --git-dir $gitDir --work-tree $workTree status -s --ignored ) | Measure-Object | Select-Object -ExpandProperty Count
+    $dirtyIndex = Test-HasDirtyIndex $workTree
+    $hasRemote = Test-HasRemote $workTree
+    $unpushedCommits = Test-HasUnpushedCommits $workTree
+    $forgottenStashes = Test-HasForgottenStashes $workTree
+    $ignoredFilesAndFolders = Test-HasIgnoredFilesAndFolder $workTree
 
     [pscustomobject]@{
       PSTypename      = "GitRepo"
       Repo            = $workTree
-      AllGood         = -not ($dirtyIndex -or $unpushedCommits -or $forgottenStashes )
+      AllGood         = -not ($dirtyIndex -or $hasRemote -or $unpushedCommits -or $forgottenStashes )
       ChangesToCommit = $dirtyIndex
+      HasRemote       = $hasRemote
       CommitsToPush   = $unpushedCommits
       StashesToClear  = $forgottenStashes
       # AllGood does not count these
