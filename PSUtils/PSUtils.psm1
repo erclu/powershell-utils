@@ -30,15 +30,19 @@ function Update-EverythingHaphazardly {
   if (-not $PSCmdlet.ShouldProcess("Update apps")) {
     return
   }
+  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output "Updating pipx packages"
 
   pipx upgrade-all
 
   Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output "Updating npm@7, then typescript commitizen jscpd (HARDCODED)"
 
-  npm update -g npm@7
-  npm update -g
+  npm install -g npm@7
+  npm install -g typescript commitizen jscpd
 
   Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output "Updating scoop packages"
 
   Update-ScoopAndCleanAfter
 }

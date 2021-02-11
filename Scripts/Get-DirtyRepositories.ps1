@@ -10,15 +10,6 @@ param (
 # TODO export type data?
 # Update-TypeData ...
 
-$forEachArguments = @{
-  OutVariable = if ($SaveToVariable) {
-    "OutVariable"
-  }
-  else {
-    $null
-  }
-}
-
 function Test-HasDirtyIndex {
   [CmdletBinding()]
   param (
@@ -109,9 +100,9 @@ $repos |
       # AllGood does not count these
       Ignored         = $ignoredFilesAndFolders
     }
-  } @forEachArguments
+  }
 
-if ($SaveToVariable) {
-  Write-Verbose "setting variable $SaveToVariable in parent scope"
-  Set-Variable -Scope 1 -Name $SaveToVariable -Value $OutVariable
-}
+# if ($SaveToVariable) {
+#   Write-Verbose "setting variable $SaveToVariable in parent scope"
+#   Set-Variable -Scope 1 -Name $SaveToVariable -Value $OutVariable
+# }
