@@ -62,7 +62,12 @@ function Test-ContainsSensitiveWords {
     $SensitiveWords
   )
 
-  return $null -ne ($SensitiveWords | Where-Object { $InputString -match $_ } | Select-Object -First 1)
+  process {
+    Write-Output "matching each of $SensitiveWords against $InputString"
+
+    return $null -ne ($SensitiveWords | Where-Object { $InputString -match $SensitiveWords } | Select-Object -First 1)
+  }
+
 }
 
 # Unlock-BitwardenDatabase

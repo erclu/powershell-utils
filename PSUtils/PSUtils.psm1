@@ -36,10 +36,9 @@ function Update-EverythingHaphazardly {
   pipx upgrade-all
 
   Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output "Updating npm@7, then typescript commitizen jscpd (HARDCODED)"
+  Write-Output "Updating npm global packages"
 
-  npm install -g npm@7
-  npm install -g typescript commitizen jscpd
+  npm update -g
 
   Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
   Write-Output "Updating scoop packages"
