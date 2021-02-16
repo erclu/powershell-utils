@@ -1,19 +1,17 @@
 $PROXY_REGISTRY_PATH = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings'
 
-function Get-NetProxy {
+function Get-Proxy {
   [CmdletBinding()]
   param (
     [switch]
     $Raw
   )
 
-  $rawObject = Get-ItemProperty -Path $PROXY_REGISTRY_PATH
-
-  if ($Raw) {
-    $rawObject
+  $arguments = if ($Raw) {
+    @{ Property = "*" }
   }
   else {
-    $arguments = @{
+    @{
       Property = @(@{
           Name       = 'IsEnabled'
           Expression = { $_.ProxyEnable -eq 1 }
@@ -30,26 +28,22 @@ function Get-NetProxy {
         }
       )
     }
-
-
-    $rawObject | Select-Object @arguments
-    # $rawObject | Select-Object ProxyEnable, ProxyServer, @{Name = 'Exclusions'; Expression = { $_.ProxyOverride -split ";" } }
   }
+
+  Get-ItemProperty -Path $PROXY_REGISTRY_PATH | Select-Object @arguments
 }
 
-function Set-NetProxy {
+function Enable-Proxy {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
   [Alias('proxy')]
   [OutputType([string])]
   Param
   (
     # server address
-    # [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 0)]
     [Parameter(Position = 0)]
     [String]
     $server,
     # port number
-    # [Parameter(Mandatory = $true, ValueFromPipelineByPropertyName = $true, Position = 1)]
     [Parameter(Position = 1)]
     [String]
     $port,
@@ -61,10 +55,10 @@ function Set-NetProxy {
 
   process {
     #Test if the TCP Port on the server is open before applying the settings
-    If (-not (Test-NetConnection -ComputerName $server -Port $port).TcpTestSucceeded) {
+    if (-not (Test-NetConnection -ComputerName $server -Port $port).TcpTestSucceeded) {
       Write-Error -Message "The proxy address is not valid: $($server):$($port)"
     }
-    Else {
+    else {
       if ($server -and $port) {
         Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value "$($server):$($port)"
       }
@@ -74,13 +68,12 @@ function Set-NetProxy {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 1
     }
 
-    Get-NetProxy
+    Get-Proxy
   }
 }
 
-function Remove-NetProxy {
+function Disable-Proxy {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
-  [Alias('Unset-NetProxy')]
   param (
     [switch]
     $RemoveProxyServerAddress
@@ -91,5 +84,19 @@ function Remove-NetProxy {
   }
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
 
-  Get-NetProxy
+  Get-Proxy
+}
+
+function Import-WinHttpProxyFromIeProxy {
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
+  param ()
+
+  sudo netsh winhttp import proxy source=ie
+}
+
+function Reset-WinHttpProxy {
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
+  param ()
+
+  sudo netsh winhttp reset proxy
 }
