@@ -42,30 +42,36 @@ function Enable-Proxy {
     # server address
     [Parameter(Position = 0)]
     [String]
-    $server,
+    $ProxyHost,
     # port number
     [Parameter(Position = 1)]
     [String]
-    $port,
-    # exclusions
+    $ProxyPort,
+    # Exclusions
     [Parameter(Position = 2)]
     [String[]]
-    $exclusions
+    $Exclusions
   )
 
   process {
+    $ProxyServer = "$($ProxyHost):$($ProxyPort)"
+
     #Test if the TCP Port on the server is open before applying the settings
-    if (-not (Test-NetConnection -ComputerName $server -Port $port).TcpTestSucceeded) {
-      Write-Error -Message "The proxy address is not valid: $($server):$($port)"
+    if (-not (Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort).TcpTestSucceeded) {
+      Write-Error -Message "The proxy address is not valid: $ProxyServer"
     }
     else {
-      if ($server -and $port) {
-        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value "$($server):$($port)"
+      if ($ProxyHost -and $ProxyHost) {
+        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
       }
-      if ($exclusions) {
-        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value ($exclusions -join ";")
+      if ($Exclusions) {
+        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value ($Exclusions -join ";")
       }
-      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 1
+      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
+
+      (ipconfig /flushdns && ipconfig /registerdns) |
+        Out-String |
+        Write-Verbose
     }
 
     Get-Proxy
@@ -83,6 +89,10 @@ function Disable-Proxy {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value ""
   }
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
+
+  ipconfig /flushdns && ipconfig /registerdns |
+    Out-String |
+    Write-Verbose
 
   Get-Proxy
 }

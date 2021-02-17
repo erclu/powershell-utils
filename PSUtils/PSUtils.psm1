@@ -286,3 +286,19 @@ function Get-OldVsCodeExtensions {
       $_
     }
 }
+
+function Invoke-GitGcWithReflogExpire {
+  [CmdletBinding()]
+  [Alias("git-gc-turbo-aggro")]
+  param (
+    # Work tree of the repository where git gc should be invoked
+    [Parameter(Position = 0)]
+    [System.IO.DirectoryInfo]
+    $Path = (Get-Location)
+  )
+
+  process {
+    git -C $Path reflog expire --expire-unreachable=now --all
+    git -C $Path gc --aggressive --prune=now
+  }
+}

@@ -23,16 +23,14 @@ Write-Output "Found $($repos.Length) repos."
 
 $repos |
   ForEach-Object {
-    $gitDir = $_
     $workTree = Split-Path -Path $_ -Parent
 
     Write-Output "running aggressive garbage collection in $workTree"
 
-    if ($Quiet) {
-      git --git-dir $gitDir gc --aggressive | Out-Null
-    }
-    else {
-      git --git-dir $gitDir gc --aggressive
+    $output = git -C $workTree gc --aggressive
+
+    if (-not $Quiet) {
+      Write-Output $output
     }
 
     if ($LASTEXITCODE) {
