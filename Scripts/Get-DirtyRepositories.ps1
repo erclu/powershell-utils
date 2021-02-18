@@ -10,7 +10,7 @@ param (
 # TODO export type data?
 # Update-TypeData ...
 
-function Test-HasDirtyIndex {
+function Test-HasUncommittedChanges {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory)]
@@ -29,7 +29,7 @@ function Test-HasNoRemote {
     $path
   )
 
-  return $null -eq (git -C $path remote -v)
+  return $null -eq (git -C $path remote)
 }
 
 function Test-HasUnpushedCommits {
@@ -62,7 +62,10 @@ function Test-HasIgnoredFilesAndFolder {
     $path
   )
 
-  return ( git -C $path status -s --ignored ) | Measure-Object | Select-Object -ExpandProperty Count
+  return ( git -C $path status -s --ignored ) |
+    Select-String -Pattern "^!!" |
+    Measure-Object |
+    Select-Object -ExpandProperty Count
 }
 
 Write-Output "Searching for repositories in $RootFolder ..."
@@ -83,22 +86,22 @@ $repos |
   ForEach-Object {
     $workTree = Split-Path -Path $_ -Parent
 
-    $dirtyIndex = Test-HasDirtyIndex $workTree
+    $uncommittedChanges = Test-HasUncommittedChanges $workTree
     $hasNoRemote = Test-HasNoRemote $workTree
     $unpushedCommits = Test-HasUnpushedCommits $workTree
     $forgottenStashes = Test-HasForgottenStashes $workTree
     $ignoredFilesAndFolders = Test-HasIgnoredFilesAndFolder $workTree
 
     [pscustomobject]@{
-      PSTypename      = "GitRepo"
-      Repo            = $workTree
-      AllGood         = -not ($dirtyIndex -or $hasNoRemote -or $unpushedCommits -or $forgottenStashes )
-      ChangesToCommit = $dirtyIndex
-      HasNoRemote     = $hasNoRemote
-      CommitsToPush   = $unpushedCommits
-      StashesToClear  = $forgottenStashes
+      PSTypename         = "GitRepo"
+      Repo               = $workTree
+      AllGood            = -not ($uncommittedChanges -or $hasNoRemote -or $unpushedCommits -or $forgottenStashes )
+      UncommittedChanges = $uncommittedChanges
+      HasNoRemote        = $hasNoRemote
+      CommitsToPush      = $unpushedCommits
+      StashesToClear     = $forgottenStashes
       # AllGood does not count these
-      Ignored         = $ignoredFilesAndFolders
+      Ignored            = $ignoredFilesAndFolders
     }
   }
 

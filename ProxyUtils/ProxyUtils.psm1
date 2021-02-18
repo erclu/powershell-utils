@@ -50,7 +50,9 @@ function Enable-Proxy {
     # Exclusions
     [Parameter(Position = 2)]
     [String[]]
-    $Exclusions
+    $Exclusions,
+    [Switch]
+    $ImportWinHttpProxy
   )
 
   process {
@@ -72,6 +74,10 @@ function Enable-Proxy {
       (ipconfig /flushdns && ipconfig /registerdns) |
         Out-String |
         Write-Verbose
+
+      if ($ImportWinHttpProxy) {
+        Import-WinHttpProxyFromIeProxy
+      }
     }
 
     Get-Proxy
@@ -82,7 +88,9 @@ function Disable-Proxy {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
   param (
     [switch]
-    $RemoveProxyServerAddress
+    $RemoveProxyServerAddress,
+    [switch]
+    $ResetWinHttpProxy
   )
 
   if ($RemoveProxyServerAddress) {
@@ -93,6 +101,10 @@ function Disable-Proxy {
   ipconfig /flushdns && ipconfig /registerdns |
     Out-String |
     Write-Verbose
+
+  if ($ResetWinHttpProxy) {
+    Reset-WinHttpProxy
+  }
 
   Get-Proxy
 }
