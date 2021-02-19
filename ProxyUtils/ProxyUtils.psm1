@@ -67,7 +67,7 @@ function Enable-Proxy {
         Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
       }
       if ($Exclusions) {
-        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value ($Exclusions -join ";")
+        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ";")
       }
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
 
