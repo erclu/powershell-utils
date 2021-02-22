@@ -294,7 +294,7 @@ function Invoke-GitGcWithReflogExpire {
     # Work tree of the repository where git gc should be invoked
     [Parameter(Position = 0)]
     [System.IO.DirectoryInfo]
-    $Path = (Get-Location)
+    $Path = "."
   )
 
   process {

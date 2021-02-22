@@ -3,7 +3,7 @@ $PROXY_REGISTRY_PATH = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet
 function Get-Proxy {
   [CmdletBinding()]
   param (
-    [switch]
+    [Switch]
     $Raw
   )
 
@@ -22,9 +22,7 @@ function Get-Proxy {
         }
         @{
           Name       = 'Exclusions'
-          Expression = {
-            $_.ProxyOverride -split ";"
-          }
+          Expression = { $_.ProxyOverride -split ";" }
         }
       )
     }
@@ -35,16 +33,14 @@ function Get-Proxy {
 
 function Enable-Proxy {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
-  [Alias('proxy')]
-  [OutputType([string])]
   Param
   (
     # server address
-    [Parameter(Position = 0)]
+    [Parameter(Position = 0, Mandatory)]
     [String]
     $ProxyHost,
     # port number
-    [Parameter(Position = 1)]
+    [Parameter(Position = 1, Mandatory)]
     [String]
     $ProxyPort,
     # Exclusions
@@ -52,7 +48,9 @@ function Enable-Proxy {
     [String[]]
     $Exclusions,
     [Switch]
-    $ImportWinHttpProxy
+    $ImportWinHttpProxy,
+    [switch]
+    $FlushDns
   )
 
   process {
@@ -63,17 +61,15 @@ function Enable-Proxy {
       Write-Error -Message "The proxy address is not valid: $ProxyServer"
     }
     else {
-      if ($ProxyHost -and $ProxyHost) {
-        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
-      }
-      if ($Exclusions) {
-        Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ";")
-      }
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
+      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
+      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ";")
 
-      (ipconfig /flushdns && ipconfig /registerdns) |
-        Out-String |
-        Write-Verbose
+      if ($FlushDns) {
+        (ipconfig /flushdns && ipconfig /registerdns) |
+          Out-String |
+          Write-Verbose
+      }
 
       if ($ImportWinHttpProxy) {
         Import-WinHttpProxyFromIeProxy
@@ -90,17 +86,22 @@ function Disable-Proxy {
     [switch]
     $RemoveProxyServerAddress,
     [switch]
-    $ResetWinHttpProxy
+    $ResetWinHttpProxy,
+    [switch]
+    $FlushDns
   )
+
+  Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
 
   if ($RemoveProxyServerAddress) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value ""
   }
-  Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
 
-  ipconfig /flushdns && ipconfig /registerdns |
-    Out-String |
-    Write-Verbose
+  if ($FlushDns) {
+    ipconfig /flushdns && ipconfig /registerdns |
+      Out-String |
+      Write-Verbose
+  }
 
   if ($ResetWinHttpProxy) {
     Reset-WinHttpProxy
