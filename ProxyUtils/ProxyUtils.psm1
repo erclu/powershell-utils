@@ -4,7 +4,9 @@ function Get-Proxy {
   [CmdletBinding()]
   param (
     [Switch]
-    $Raw
+    $Raw,
+    [Switch]
+    $ShowWinHttpProxy
   )
 
   $arguments = if ($Raw) {
@@ -29,6 +31,10 @@ function Get-Proxy {
   }
 
   Get-ItemProperty -Path $PROXY_REGISTRY_PATH | Select-Object @arguments
+
+  if ($ShowWinHttpProxy) {
+    netsh winhttp show proxy
+  }
 }
 
 function Enable-Proxy {
