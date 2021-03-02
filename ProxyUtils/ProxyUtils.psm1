@@ -90,7 +90,7 @@ function Disable-Proxy {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
   param (
     [switch]
-    $RemoveProxyServerAddress,
+    $RemoveProxySettings,
     [switch]
     $ResetWinHttpProxy,
     [switch]
@@ -99,8 +99,9 @@ function Disable-Proxy {
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
 
-  if ($RemoveProxyServerAddress) {
+  if ($RemoveProxySettings) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value ""
+    Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyOverride -Value ""
   }
 
   if ($FlushDns) {
