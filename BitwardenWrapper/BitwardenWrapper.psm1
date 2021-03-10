@@ -1,31 +1,40 @@
+# $CONFIG = [PSCustomObject]@{}
+$BITWARDEN_WRAPPER_MESSAGES = [PSCustomObject]@{
+  ALREADY_UNLOCKED      = 'Bitwarden database was already unlocked'
+  WRONG_MASTER_PASSWORD = 'Invalid master password.'
+  EMPTY_MASTER_PASSWORD = 'Master password is required.'
+  NOT_LOGGED_IN         = 'No user logged in.'
+}
 function Unlock-BitwardenDatabase {
   [CmdletBinding()]
-  param ()
+  [Alias("bw-unlock")]
+  param (
+    [Switch]
+    $RemovePSReadline
+  )
 
-  $WRONG_MASTER_PASSWORD = 'Invalid master password.'
-  $EMPTY_MASTER_PASSWORD = 'Master password is required.'
-
-  if ($env:BW_SESSION) {
-    Write-Output "Bitwarden database was already unlocked"
+  $status = bw status | ConvertFrom-Json | Select-Object -ExpandProperty status
+  if ($status -eq "unlocked") {
+    Write-Warning $BITWARDEN_WRAPPER_MESSAGES.ALREADY_UNLOCKED
     return
   }
 
-  $SESSION = bw unlock --raw
+  $bwUnlockOutput = bw unlock --raw
 
-  if (Get-Module PSReadLine) {
-    Write-Verbose "Removing PSReadline module"
-    Remove-Module PSReadLine
+  if (-not $LASTEXITCODE -eq 0) {
+    return
   }
 
-  if ($SESSION -match $WRONG_MASTER_PASSWORD -or $SESSION -match $EMPTY_MASTER_PASSWORD) {
-    Throw "Unlock failed"
+  if ($RemovePSReadline -and (Get-Module PSReadLine)) {
+    Write-Output "Removing PSReadline module from current session..."
+    Remove-Module PSReadLine
   }
 
   Write-Output "Bitwarden database unlocked"
 
   # remember current session
   Write-Verbose "Saving session key to environment variable"
-  $env:BW_SESSION = $SESSION
+  $env:BW_SESSION = $bwUnlockOutput
 }
 
 Get-ChildItem -Recurse -File -LiteralPath "$PSScriptRoot/Classes" | ForEach-Object {

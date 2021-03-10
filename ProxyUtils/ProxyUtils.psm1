@@ -71,6 +71,11 @@ function Enable-Proxy {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ";")
 
+      $ProxyUrl = "http://$ProxyServer"
+
+      [Environment]::SetEnvironmentVariable("all_proxy", $ProxyUrl, "User")
+      [Environment]::SetEnvironmentVariable("no_proxy", ($Exclusions -join ","), "User")
+
       if ($FlushDns) {
         (ipconfig /flushdns && ipconfig /registerdns) |
           Out-String |
@@ -98,6 +103,9 @@ function Disable-Proxy {
   )
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
+
+  [Environment]::SetEnvironmentVariable("all_proxy", $null, "User")
+  [Environment]::SetEnvironmentVariable("no_proxy", $null, "User")
 
   if ($RemoveProxySettings) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value ""

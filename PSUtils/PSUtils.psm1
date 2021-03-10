@@ -30,6 +30,7 @@ function Update-EverythingHaphazardly {
   if (-not $PSCmdlet.ShouldProcess("Update apps")) {
     return
   }
+
   Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
   Write-Output "Updating pipx packages"
 
@@ -216,11 +217,10 @@ function Add-ModuleShim {
     $ModuleFolder
   )
 
-  $ModuleName = $ModuleFolder.Name
+  $ModuleFullPath = $ModuleFolder.FullName
+  $ShimPath = Join-Path "$HOME/Documents/PowerShell/Modules/" $ModuleFolder.Name
 
-  $ShimPath = Join-Path "$HOME/Documents/PowerShell/Modules/" $ModuleName
-
-  New-Item -ItemType Junction -Path $ShimPath -Value $ModuleFolder -Confirm
+  New-Item -ItemType Junction -Path $ShimPath -Value $ModuleFullPath -Confirm
 }
 
 function Get-OldVsCodeExtensions {
