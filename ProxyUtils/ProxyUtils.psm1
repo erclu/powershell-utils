@@ -32,6 +32,9 @@ function Get-Proxy {
 
   Get-ItemProperty -Path $PROXY_REGISTRY_PATH | Select-Object @arguments
 
+  Write-Output "all_proxy: $($env:all_proxy)"
+  Write-Output "no_proxy: $($env:no_proxy)"
+
   if ($ShowWinHttpProxy) {
     netsh winhttp show proxy
   }
@@ -126,15 +129,19 @@ function Disable-Proxy {
 }
 
 function Import-WinHttpProxyFromIeProxy {
-  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
+  # [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
+  [CmdletBinding()]
   param ()
 
   sudo netsh winhttp import proxy source=ie
 }
 
 function Reset-WinHttpProxy {
-  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
+  [CmdletBinding()]
   param ()
 
-  sudo netsh winhttp reset proxy
+  if ($PSCmdlet.ShouldProcess("Reset WinHTTP proxy settings?")) {
+    sudo netsh winhttp reset proxy
+  }
 }

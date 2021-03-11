@@ -289,7 +289,7 @@ function Get-OldVsCodeExtensions {
 
 function Invoke-GitGcWithReflogExpire {
   [CmdletBinding()]
-  [Alias("git-gc-turbo-aggro")]
+  [Alias('git-gc-expire-unreachable')]
   param (
     # Work tree of the repository where git gc should be invoked
     [Parameter(Position = 0)]
@@ -302,3 +302,5 @@ function Invoke-GitGcWithReflogExpire {
     git -C $Path gc --aggressive --prune=now
   }
 }
+
+Export-Alias 'git-gc-expire-unreachable'

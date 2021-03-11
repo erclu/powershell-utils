@@ -104,8 +104,3 @@ $repos |
       Ignored            = $ignoredFilesAndFolders
     }
   }
-
-# if ($SaveToVariable) {
-#   Write-Verbose "setting variable $SaveToVariable in parent scope"
-#   Set-Variable -Scope 1 -Name $SaveToVariable -Value $OutVariable
-# }
