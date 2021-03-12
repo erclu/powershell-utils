@@ -302,5 +302,3 @@ function Invoke-GitGcWithReflogExpire {
     git -C $Path gc --aggressive --prune=now
   }
 }
-
-Export-Alias 'git-gc-expire-unreachable'
