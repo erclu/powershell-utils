@@ -10,7 +10,7 @@ function Get-Proxy {
   )
 
   $arguments = if ($Raw) {
-    @{ Property = "*" }
+    @{ Property = '*' }
   }
   else {
     @{
@@ -24,7 +24,7 @@ function Get-Proxy {
         }
         @{
           Name       = 'Exclusions'
-          Expression = { $_.ProxyOverride -split ";" }
+          Expression = { $_.ProxyOverride -split ';' }
         }
       )
     }
@@ -41,7 +41,7 @@ function Get-Proxy {
 }
 
 function Enable-Proxy {
-  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   Param
   (
     # server address
@@ -72,12 +72,12 @@ function Enable-Proxy {
     else {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
-      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ";")
+      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ';')
 
       $ProxyUrl = "http://$ProxyServer"
 
-      [Environment]::SetEnvironmentVariable("all_proxy", $ProxyUrl, "User")
-      [Environment]::SetEnvironmentVariable("no_proxy", ($Exclusions -join ","), "User")
+      [Environment]::SetEnvironmentVariable('all_proxy', $ProxyUrl, 'User')
+      [Environment]::SetEnvironmentVariable('no_proxy', ($Exclusions -join ','), 'User')
 
       if ($FlushDns) {
         (ipconfig /flushdns && ipconfig /registerdns) |
@@ -95,7 +95,7 @@ function Enable-Proxy {
 }
 
 function Disable-Proxy {
-  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   param (
     [switch]
     $RemoveProxySettings,
@@ -105,14 +105,14 @@ function Disable-Proxy {
     $FlushDns
   )
 
-  Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyEnable -Value 0
+  Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
 
-  [Environment]::SetEnvironmentVariable("all_proxy", $null, "User")
-  [Environment]::SetEnvironmentVariable("no_proxy", $null, "User")
+  [Environment]::SetEnvironmentVariable('all_proxy', $null, 'User')
+  [Environment]::SetEnvironmentVariable('no_proxy', $null, 'User')
 
   if ($RemoveProxySettings) {
-    Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyServer -Value ""
-    Set-ItemProperty -Path $PROXY_REGISTRY_PATH -name ProxyOverride -Value ""
+    Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value ''
+    Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ''
   }
 
   if ($FlushDns) {
@@ -137,11 +137,11 @@ function Import-WinHttpProxyFromIeProxy {
 }
 
 function Reset-WinHttpProxy {
-  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "Medium")]
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   [CmdletBinding()]
   param ()
 
-  if ($PSCmdlet.ShouldProcess("Reset WinHTTP proxy settings?")) {
+  if ($PSCmdlet.ShouldProcess('Reset WinHTTP proxy settings?')) {
     sudo netsh winhttp reset proxy
   }
 }
