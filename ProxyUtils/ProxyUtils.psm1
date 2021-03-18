@@ -77,6 +77,8 @@ function Enable-Proxy {
       $ProxyUrl = "http://$ProxyServer"
 
       [Environment]::SetEnvironmentVariable('all_proxy', $ProxyUrl, 'User')
+      [Environment]::SetEnvironmentVariable('http_proxy', $ProxyUrl, 'User')
+      [Environment]::SetEnvironmentVariable('https_proxy', $ProxyUrl, 'User')
       [Environment]::SetEnvironmentVariable('no_proxy', ($Exclusions -join ','), 'User')
 
       if ($FlushDns) {
@@ -108,7 +110,13 @@ function Disable-Proxy {
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
 
   [Environment]::SetEnvironmentVariable('all_proxy', $null, 'User')
+  [Environment]::SetEnvironmentVariable('http_proxy', $null, 'User')
+  [Environment]::SetEnvironmentVariable('https_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('no_proxy', $null, 'User')
+  Remove-Item Env:\all_proxy
+  Remove-Item Env:\http_proxy
+  Remove-Item Env:\https_proxy
+  Remove-Item Env:\no_proxy
 
   if ($RemoveProxySettings) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value ''
