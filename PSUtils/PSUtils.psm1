@@ -302,3 +302,35 @@ function Invoke-GitGcWithReflogExpire {
     git -C $Path gc --aggressive --prune=now
   }
 }
+
+function Update-VsCodePortable {
+  [CmdletBinding()]
+  param (
+    # Parameter help description
+    [Parameter()]
+    [System.IO.DirectoryInfo]
+    $Destination = (Get-Item "C:/Tools/vscode/portable")
+  )
+
+  # New-Item -Verbose -ItemType Junction -Path "$PSScriptRoot/portable/data" -Value "$PSScriptRoot/data"
+
+  $allProducts = Invoke-WebRequest "https://code.visualstudio.com/sha?build=stable" |
+    Select-Object -ExpandProperty Content |
+    ConvertFrom-Json |
+    Select-Object -ExpandProperty "products"
+
+  $winPortableProduct = $allProducts | Where-Object { $_.platform.os -match "win32-x64-archive" }
+
+  $installedVersionHash = (code -v)[1]
+
+  if ($winPortableProduct.version -match $installedVersionHash) {
+    Write-Output "VSCode is up to date. Current version is $($winPortableProduct.name)"
+    return
+  }
+
+  # TODO finish implementing
+  # TODO check hash
+  throw "NOT IMPLEMENTED"
+
+  Invoke-WebRequest $winPortableProduct.url
+}
