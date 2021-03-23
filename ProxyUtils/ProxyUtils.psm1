@@ -68,6 +68,8 @@ function Enable-Proxy {
     #Test if the TCP Port on the server is open before applying the settings
     if (-not (Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort).TcpTestSucceeded) {
       Write-Error -Message "The proxy address is not valid: $ProxyServer"
+      Write-Output 'Press any key to continue...'
+      $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     }
     else {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
@@ -76,10 +78,14 @@ function Enable-Proxy {
 
       $ProxyUrl = "http://$ProxyServer"
 
-      [Environment]::SetEnvironmentVariable('all_proxy', $ProxyUrl, 'User')
-      [Environment]::SetEnvironmentVariable('http_proxy', $ProxyUrl, 'User')
-      [Environment]::SetEnvironmentVariable('https_proxy', $ProxyUrl, 'User')
-      [Environment]::SetEnvironmentVariable('no_proxy', ($Exclusions -join ','), 'User')
+      $env:all_proxy = $ProxyUrl
+      $env:http_proxy = $ProxyUrl
+      $env:https_proxy = $ProxyUrl
+      $env:no_proxy = $Exclusions -join ','
+      [Environment]::SetEnvironmentVariable('all_proxy', $env:all_proxy, 'User')
+      [Environment]::SetEnvironmentVariable('http_proxy', $env:http_proxy, 'User')
+      [Environment]::SetEnvironmentVariable('https_proxy', $env:https_proxy, 'User')
+      [Environment]::SetEnvironmentVariable('no_proxy', $env:no_proxy , 'User')
 
       if ($FlushDns) {
         (ipconfig /flushdns && ipconfig /registerdns) |
@@ -113,10 +119,14 @@ function Disable-Proxy {
   [Environment]::SetEnvironmentVariable('http_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('https_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('no_proxy', $null, 'User')
-  Remove-Item Env:\all_proxy
-  Remove-Item Env:\http_proxy
-  Remove-Item Env:\https_proxy
-  Remove-Item Env:\no_proxy
+
+  # Remove from current shell if present
+  @(
+    'Env:\all_proxy'
+    'Env:\http_proxy'
+    'Env:\https_proxy'
+    'Env:\no_proxy'
+  ) | Where-Object { Test-Path $_ } | Remove-Item
 
   if ($RemoveProxySettings) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value ''

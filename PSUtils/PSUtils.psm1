@@ -17,9 +17,9 @@ function Get-ScoopSize {
 
 
   [PSCustomObject]@{
-    "cache size (MB)"          = [math]::Round($cache / 1MB, 2)
-    "persisted data size (MB)" = [math]::Round($persisted / 1MB, 2)
-    "installed apps size (GB)" = [math]::Round($installed / 1GB, 2)
+    'cache size (MB)'          = [math]::Round($cache / 1MB, 2)
+    'persisted data size (MB)' = [math]::Round($persisted / 1MB, 2)
+    'installed apps size (GB)' = [math]::Round($installed / 1GB, 2)
   }
 }
 
@@ -27,22 +27,22 @@ function Update-EverythingHaphazardly {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   param ()
 
-  if (-not $PSCmdlet.ShouldProcess("Update apps")) {
+  if (-not $PSCmdlet.ShouldProcess('Update apps')) {
     return
   }
 
-  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output "Updating pipx packages"
+  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output 'Updating pipx packages'
 
   pipx upgrade-all
 
-  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output "Updating npm global packages"
+  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output 'Updating npm global packages'
 
   npm update -g
 
-  Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output "Updating scoop packages"
+  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output 'Updating scoop packages'
 
   Update-ScoopAndCleanAfter
 }
@@ -51,29 +51,29 @@ function Update-ScoopAndCleanAfter {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   param ()
 
-  $telegram = "telegram"
+  $telegram = 'telegram'
 
   scoop update
   $out = scoop status 6>&1
   $out
   if ($out -match $telegram) {
-    Write-Output "stopping telegram..."
+    Write-Output 'stopping telegram...'
     Get-Process $telegram | Stop-Process
   }
 
-  if ($PSCmdlet.ShouldProcess("Update apps")) {
+  if ($PSCmdlet.ShouldProcess('Update apps')) {
     scoop update *
   }
 
-  Write-Output "Running scoop cleanup..."
+  Write-Output 'Running scoop cleanup...'
   scoop cleanup *
 
-  Write-Output "Clearing cache..."
+  Write-Output 'Clearing cache...'
   scoop cache show
   scoop cache rm *
 
   if ($out -match $telegram) {
-    Write-Output "starting telegram..."
+    Write-Output 'starting telegram...'
     & $telegram
   }
 }
@@ -134,11 +134,11 @@ function Test-HasCrlfEndings {
 function Test-BomHereRecursive {
 
   Get-ChildItem -File -Recurse |
-    Where-Object FullName -NotMatch ".zip" |
-    Where-Object FullName -NotMatch ".git" |
-    Where-Object FullName -NotMatch ".mypy_cache" |
-    Where-Object FullName -NotMatch "node_modules" |
-    Where-Object FullName -NotMatch "vendor" |
+    Where-Object FullName -NotMatch '.zip' |
+    Where-Object FullName -NotMatch '.git' |
+    Where-Object FullName -NotMatch '.mypy_cache' |
+    Where-Object FullName -NotMatch 'node_modules' |
+    Where-Object FullName -NotMatch 'vendor' |
     Where-Object { -not (Test-ContainsBOM $_) } |
     Select-Object FullName
 }
@@ -154,7 +154,7 @@ function Find-Duplicates {
   param (
     [Parameter()]
     [String[]]
-    $Paths = "."
+    $Paths = '.'
   )
   python 'D:/Projects/__libraries-wheels-etc/find_duplicates.py' $Paths
 }
@@ -163,7 +163,7 @@ function New-TemporaryDirectory {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
   param()
 
-  if ($PSCmdlet.ShouldProcess("Create new temporary directory")) {
+  if ($PSCmdlet.ShouldProcess('Create new temporary directory')) {
     New-Item -ItemType Directory -Path (Join-Path ([System.IO.Path]::GetTempPath()) ([System.Guid]::NewGuid()))
   }
 }
@@ -184,7 +184,7 @@ function New-HardLink {
     [parameter(position = 1)] [Object] $Value
   )
 
-  if ($PSCmdlet.ShouldProcess("Create new HardLink")) {
+  if ($PSCmdlet.ShouldProcess('Create new HardLink')) {
     New-Item -ItemType HardLink -Name $Name -Value $Value
   }
 }
@@ -206,7 +206,7 @@ function Invoke-SshCopyId {
     $Destination
   )
 
-  Get-Content "~/.ssh/id_rsa.pub" | ssh $Destination "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+  Get-Content '~/.ssh/id_rsa.pub' | ssh $Destination 'mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys'
 }
 
 
@@ -230,9 +230,9 @@ function Get-OldVsCodeExtensions {
     # $Aggro
   )
 
-  $VSCODE_EXTENSIONS_DIR = "C:/Tools/scoop/apps/vscode-portable/current/data/extensions"
+  $VSCODE_EXTENSIONS_DIR = 'C:/Tools/scoop/apps/vscode-portable/current/data/extensions'
 
-  $SEMVER_REGEX = "(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?"
+  $SEMVER_REGEX = '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?'
   $SPLITTER_REGEX = "^(?<name>.*?)-(?<version>$SEMVER_REGEX)$"
 
   # if (-not $Aggro) {
@@ -294,7 +294,7 @@ function Invoke-GitGcWithReflogExpire {
     # Work tree of the repository where git gc should be invoked
     [Parameter(Position = 0)]
     [System.IO.DirectoryInfo]
-    $Path = "."
+    $Path = '.'
   )
 
   process {
@@ -304,33 +304,55 @@ function Invoke-GitGcWithReflogExpire {
 }
 
 function Update-VsCodePortable {
-  [CmdletBinding()]
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'High')]
   param (
-    # Parameter help description
-    [Parameter()]
+    [Parameter(Mandatory, Position = 0)]
     [System.IO.DirectoryInfo]
-    $Destination = (Get-Item "C:/Tools/vscode/portable")
+    $Destination,
+    [Parameter(Mandatory)]
+    [System.IO.DirectoryInfo]
+    $DataFolder,
+    [Switch]
+    $Force
   )
 
-  # New-Item -Verbose -ItemType Junction -Path "$PSScriptRoot/portable/data" -Value "$PSScriptRoot/data"
+  if (-not $PSCmdlet.ShouldProcess('UPDATE VSCODE??? THIS FUNCTION IS BAD')) {
+    return
+  }
 
-  $allProducts = Invoke-WebRequest "https://code.visualstudio.com/sha?build=stable" |
+  $allProducts = Invoke-WebRequest 'https://code.visualstudio.com/sha?build=stable' |
     Select-Object -ExpandProperty Content |
     ConvertFrom-Json |
-    Select-Object -ExpandProperty "products"
+    Select-Object -ExpandProperty 'products'
 
-  $winPortableProduct = $allProducts | Where-Object { $_.platform.os -match "win32-x64-archive" }
+  $winPortableProduct = $allProducts | Where-Object { $_.platform.os -match 'win32-x64-archive' }
 
+  $readableInstalledVersion = (code -v)[0]
   $installedVersionHash = (code -v)[1]
 
-  if ($winPortableProduct.version -match $installedVersionHash) {
+  if (-not $Force -and $winPortableProduct.version -match $installedVersionHash) {
     Write-Output "VSCode is up to date. Current version is $($winPortableProduct.name)"
     return
   }
 
-  # TODO finish implementing
-  # TODO check hash
-  throw "NOT IMPLEMENTED"
+  if (Test-Path $Destination) {
+    $backupFolder = "$($Destination.Name)-$readableInstalledVersion"
 
-  Invoke-WebRequest $winPortableProduct.url
+    if (Test-Path (Join-Path $Destination $backupFolder)) {
+      throw 'Backup folder already exists'
+    }
+
+    Write-Output "Backing up current content of $Destination to $backupFolder"
+    Rename-Item $Destination -NewName $backupFolder
+  }
+
+  # TODO cache downloaded archive
+  $archive = New-TemporaryFile
+  Invoke-WebRequest $winPortableProduct.url -OutFile $archive
+
+  # TODO check hash
+
+  Expand-Archive -Path $archive -DestinationPath $Destination
+
+  New-Item -ItemType Junction -Path (Join-Path $Destination 'data') -Target (Resolve-Path $DataFolder)
 }
