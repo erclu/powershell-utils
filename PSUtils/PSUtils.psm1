@@ -356,3 +356,10 @@ function Update-VsCodePortable {
 
   New-Item -ItemType Junction -Path (Join-Path $Destination 'data') -Target (Resolve-Path $DataFolder)
 }
+
+function Edit-HostsFile {
+  [CmdletBinding()]
+  param ()
+
+  sudo notepad c:\windows\system32\drivers\etc\hosts
+}
