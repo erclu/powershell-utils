@@ -3,12 +3,8 @@ if (-not (Get-Command -ErrorAction SilentlyContinue Contig.exe) ) {
   throw "CONTIG IS NOT AVAILABLE ON PATH"
 }
 
-###### TODO is it needed?
-# Requires -RunAsAdministrator
-
 function Invoke-Contig {
-  # Contig64.exe -nobanner $args
-  Contig.exe -nobanner $args
+  Contig.exe -nobanner $args | Write-Output
 }
 
 Set-Alias contig Invoke-Contig
@@ -46,13 +42,17 @@ function Invoke-FileDefragmentation {
   }
 
   process {
+    if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
+      throw "retry as administrator"
+    }
+
     $start = Get-Date;
 
     Invoke-Contig $file
 
     $elapsed = (Get-Date) - $start;
 
-    Write-Verbose "defrag of $file completed in $elapsed"
+    Write-Output "$file defragmented in $elapsed"
   }
 
   end {
