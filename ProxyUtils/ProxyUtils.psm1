@@ -173,3 +173,34 @@ function Reset-WinHttpProxy {
     sudo netsh winhttp reset proxy
   }
 }
+
+# TODO test me
+# TODO reduce duplication
+function New-ProxyShortcuts {
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
+  param (
+    [Parameter(Position = 0)]
+    [System.IO.DirectoryInfo]
+    $Destination = '.',
+    [Switch]
+    $EnableShortcut,
+    [Switch]
+    $DisableShortcut
+  )
+  if (-not($PSCmdlet.ShouldProcess('Create shortcuts?'))) {
+    return
+  }
+
+  $WshShell = New-Object -ComObject WScript.Shell
+
+  if ($EnableShortcut) {
+    $Shortcut = $WshShell.CreateShortcut("$Destination\enable-proxy.lnk")
+    $Shortcut.TargetPath = 'pwsh.exe -NoLogo -Command "Enable-Proxy -ImportWinHttpProxy -IncludeWsl"'
+    $Shortcut.Save()
+  }
+  if ($DisableShortcut) {
+    $Shortcut = $WshShell.CreateShortcut("$Destination\disable-proxy.lnk")
+    $Shortcut.TargetPath = 'pwsh.exe -NoLogo -Command "Disable-Proxy -FlushDns -ResetWinHttpProxy -IncludeWsl"'
+    $Shortcut.Save()
+  }
+}
