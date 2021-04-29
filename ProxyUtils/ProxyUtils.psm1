@@ -58,8 +58,10 @@ function Enable-Proxy {
     $Exclusions,
     [Switch]
     $ImportWinHttpProxy,
-    [switch]
-    $FlushDns
+    [Switch]
+    $FlushDns,
+    [Switch]
+    $IncludeWsl
   )
 
   process {
@@ -87,10 +89,12 @@ function Enable-Proxy {
       [Environment]::SetEnvironmentVariable('https_proxy', $env:https_proxy, 'User')
       [Environment]::SetEnvironmentVariable('no_proxy', $env:no_proxy , 'User')
 
+      if ($IncludeWsl) {
+        wsl -d ubuntu -- bash -i -c 'enable-proxy'
+      }
+
       if ($FlushDns) {
-        (ipconfig /flushdns && ipconfig /registerdns) |
-          Out-String |
-          Write-Verbose
+        (ipconfig /flushdns && ipconfig /registerdns) | Write-Output
       }
 
       if ($ImportWinHttpProxy) {
@@ -110,7 +114,9 @@ function Disable-Proxy {
     [switch]
     $ResetWinHttpProxy,
     [switch]
-    $FlushDns
+    $FlushDns,
+    [Switch]
+    $IncludeWsl
   )
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
@@ -131,6 +137,10 @@ function Disable-Proxy {
   if ($RemoveProxySettings) {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value ''
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ''
+  }
+
+  if ($IncludeWsl) {
+    wsl -d ubuntu -- bash -i -c 'disable-proxy'
   }
 
   if ($FlushDns) {
