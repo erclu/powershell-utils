@@ -67,11 +67,10 @@ function Enable-Proxy {
   process {
     $ProxyServer = "$($ProxyHost):$($ProxyPort)"
 
-    #Test if the TCP Port on the server is open before applying the settings
-    if (-not (Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort).TcpTestSucceeded) {
+    $connection = Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort
+
+    if (-not $connection.TcpTestSucceeded) {
       Write-Error -Message "The proxy address is not valid: $ProxyServer"
-      Write-Output 'Press any key to continue...'
-      $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
     }
     else {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
@@ -89,20 +88,24 @@ function Enable-Proxy {
       [Environment]::SetEnvironmentVariable('https_proxy', $env:https_proxy, 'User')
       [Environment]::SetEnvironmentVariable('no_proxy', $env:no_proxy , 'User')
 
-      if ($IncludeWsl) {
-        wsl -d ubuntu -- bash -i -c 'enable-proxy'
+      if ($ImportWinHttpProxy) {
+        Import-WinHttpProxyFromIeProxy
       }
 
       if ($FlushDns) {
         (ipconfig /flushdns && ipconfig /registerdns) | Write-Output
       }
 
-      if ($ImportWinHttpProxy) {
-        Import-WinHttpProxyFromIeProxy
+      if ($IncludeWsl) {
+        wsl -d ubuntu -- bash -i -c 'enable-proxy'
       }
     }
 
     Get-Proxy
+
+    [System.Console]::Beep()
+    Write-Output 'Press any key to continue...'
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
   }
 }
 
@@ -139,8 +142,8 @@ function Disable-Proxy {
     Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ''
   }
 
-  if ($IncludeWsl) {
-    wsl -d ubuntu -- bash -i -c 'disable-proxy'
+  if ($ResetWinHttpProxy) {
+    Reset-WinHttpProxy
   }
 
   if ($FlushDns) {
@@ -149,11 +152,15 @@ function Disable-Proxy {
       Write-Verbose
   }
 
-  if ($ResetWinHttpProxy) {
-    Reset-WinHttpProxy
+  if ($IncludeWsl) {
+    wsl -d ubuntu -- bash -i -c 'disable-proxy'
   }
 
   Get-Proxy
+
+  [System.Console]::Beep()
+  Write-Output 'Press any key to continue...'
+  $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
 function Import-WinHttpProxyFromIeProxy {
