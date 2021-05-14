@@ -93,7 +93,7 @@ function Enable-Proxy {
       }
 
       if ($FlushDns) {
-        (ipconfig /flushdns && ipconfig /registerdns) | Write-Output
+        ipconfig /flushdns | Write-Output
       }
 
       if ($IncludeWsl) {
@@ -147,9 +147,7 @@ function Disable-Proxy {
   }
 
   if ($FlushDns) {
-    ipconfig /flushdns && ipconfig /registerdns |
-      Out-String |
-      Write-Verbose
+    ipconfig /flushdns | Write-Output
   }
 
   if ($IncludeWsl) {
