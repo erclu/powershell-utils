@@ -97,7 +97,7 @@ function Enable-Proxy {
       }
 
       if ($IncludeWsl) {
-        wsl -d ubuntu -- bash -i -c 'enable-proxy'
+        Enable-WslProxy
       }
     }
 
@@ -151,7 +151,7 @@ function Disable-Proxy {
   }
 
   if ($IncludeWsl) {
-    wsl -d ubuntu -- bash -i -c 'disable-proxy'
+    Disable-WslProxy
   }
 
   Get-Proxy
@@ -161,8 +161,21 @@ function Disable-Proxy {
   $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
+function Enable-WslProxy {
+  [CmdletBinding()]
+  param ()
+
+  wsl -d ubuntu -- bash -i -c 'enable-proxy'
+}
+
+function Disable-WslProxy {
+  [CmdletBinding()]
+  param ()
+
+  wsl -d ubuntu -- bash -i -c 'disable-proxy'
+}
+
 function Import-WinHttpProxyFromIeProxy {
-  # [CmdletBinding(SupportsShouldProcess, ConfirmImpact = "High")]
   [CmdletBinding()]
   param ()
 
