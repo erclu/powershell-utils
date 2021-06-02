@@ -230,7 +230,7 @@ function Get-OldVsCodeExtensions {
     # $Aggro
   )
 
-  $VSCODE_EXTENSIONS_DIR = 'C:/Tools/scoop/apps/vscode-portable/current/data/extensions'
+  $VSCODE_EXTENSIONS_DIR = 'C:/Tools/vscode/data/extensions'
 
   $SEMVER_REGEX = '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?'
   $SPLITTER_REGEX = "^(?<name>.*?)-(?<version>$SEMVER_REGEX)$"
