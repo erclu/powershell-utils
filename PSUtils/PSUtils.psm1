@@ -39,6 +39,7 @@ function Update-EverythingHaphazardly {
   Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
   Write-Output 'Updating npm global packages'
 
+  npm outdated -g
   npm update -g
 
   Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
