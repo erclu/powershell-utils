@@ -317,7 +317,7 @@ function Update-VsCodePortable {
     $Force
   )
 
-  if (-not $PSCmdlet.ShouldProcess('UPDATE VSCODE??? THIS FUNCTION IS BAD')) {
+  if (-not $PSCmdlet.ShouldProcess('UPDATE VSCODE PORTABLE?')) {
     return
   }
 
@@ -336,6 +336,9 @@ function Update-VsCodePortable {
     return
   }
 
+  Write-Output "Shutting down wsl just to be sure"
+  wsl --shutdown
+
   if (Test-Path $Destination) {
     $backupFolder = "$($Destination.Name)-$readableInstalledVersion"
 
@@ -343,8 +346,8 @@ function Update-VsCodePortable {
       throw 'Backup folder already exists'
     }
 
-    Write-Output "Backing up current content of $Destination to $backupFolder"
-    Rename-Item $Destination -NewName $backupFolder
+    Write-Output "Backing up current content of $Destination $backupFolder"
+    Rename-Item $Destination -NewName $backupFolder -ErrorAction Stop
   }
 
   # TODO cache downloaded archive
