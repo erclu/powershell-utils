@@ -61,15 +61,17 @@ function Enable-Proxy {
     [Switch]
     $FlushDns,
     [Switch]
-    $IncludeWsl
+    $IncludeWsl,
+    [Switch]
+    $TestProxyAvailability,
+    [Switch]
+    $Beep
   )
 
   process {
     $ProxyServer = "$($ProxyHost):$($ProxyPort)"
 
-    $connection = Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort
-
-    if (-not $connection.TcpTestSucceeded) {
+    if ($TestProxyAvailability -and -not (Test-NetConnection -ComputerName $ProxyHost -Port $ProxyPort).TcpTestSucceeded) {
       Write-Error -Message "The proxy address is not valid: $ProxyServer"
     }
     else {
@@ -103,9 +105,11 @@ function Enable-Proxy {
 
     Get-Proxy
 
-    [System.Console]::Beep()
-    Write-Output 'Press any key to continue...'
-    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    if ($Beep) {
+      [System.Console]::Beep()
+    }
+    # Write-Output 'Press any key to continue...'
+    # $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
   }
 }
 
@@ -119,7 +123,9 @@ function Disable-Proxy {
     [switch]
     $FlushDns,
     [Switch]
-    $IncludeWsl
+    $IncludeWsl,
+    [Switch]
+    $Beep
   )
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
@@ -156,9 +162,11 @@ function Disable-Proxy {
 
   Get-Proxy
 
-  [System.Console]::Beep()
-  Write-Output 'Press any key to continue...'
-  $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+  if ($Beep) {
+    [System.Console]::Beep()
+  }
+  # Write-Output 'Press any key to continue...'
+  # $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
 }
 
 function Enable-WslProxy {

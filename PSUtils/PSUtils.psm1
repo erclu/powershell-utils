@@ -227,11 +227,9 @@ function Add-ModuleShim {
 function Get-OldVsCodeExtensions {
   [CmdletBinding()]
   param (
-    # [switch]
-    # $Aggro
+    [System.IO.DirectoryInfo]
+    $VscodeExtensionsDirectory = (Get-Item 'C:/Tools/vscode/data/extensions')
   )
-
-  $VSCODE_EXTENSIONS_DIR = 'C:/Tools/vscode/data/extensions'
 
   $SEMVER_REGEX = '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-((?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9][0-9]*|[0-9]*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?'
   $SPLITTER_REGEX = "^(?<name>.*?)-(?<version>$SEMVER_REGEX)$"
@@ -244,7 +242,7 @@ function Get-OldVsCodeExtensions {
   # }
 
   $parsedExtensionFolders = @(
-    Get-ChildItem -Directory -Path $VSCODE_EXTENSIONS_DIR |
+    Get-ChildItem -Directory -Path $VscodeExtensionsDirectory |
       Sort-Object -Descending CreationTime |
       ForEach-Object {
         $name = $_.Name
