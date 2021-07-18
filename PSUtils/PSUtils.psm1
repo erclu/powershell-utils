@@ -365,6 +365,10 @@ function Update-VsCodePortable {
     return
   }
 
+  if (Get-Process -Name com.docker.backend -ErrorAction SilentlyContinue) {
+    throw "STOP DOCKER BEFORE UPDATING VSCODE"
+  }
+
   Write-Output 'Shutting down wsl just to be sure'
   wsl --shutdown
 
