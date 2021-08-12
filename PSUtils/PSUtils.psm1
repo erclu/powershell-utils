@@ -31,34 +31,42 @@ function Update-EverythingHaphazardly {
     return
   }
 
-  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output 'Updating pipx packages'
+  if (Get-Command -ErrorAction SilentlyContinue pipx) {
+    Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+    Write-Output '- Updating pipx packages'
 
-  pipx upgrade-all
+    pipx upgrade-all
+  }
 
-  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output 'Updating npm global packages'
+  if (Get-Command -ErrorAction SilentlyContinue npm) {
+    Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+    Write-Output '- Outdated npm global packages'
+    npm outdated -g
 
-  npm outdated -g
-  npm update -g
-
-  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
-  Write-Output 'Updating scoop packages'
+    Write-Output '- Updating npm global packages'
+    npm update -g
+  }
 
   Update-ScoopAndCleanAfter
+
+  Update-GitRepositoriesSafely
 }
 
 function Update-ScoopAndCleanAfter {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Medium')]
   param ()
 
+  Write-Output ('-' * $Host.UI.RawUI.WindowSize.Width)
+  Write-Output '- Updating scoop packages'
+
   $telegram = 'telegram'
 
-  scoop update
-  $out = scoop status 6>&1
-  $out
-  if ($out -match $telegram) {
-    Write-Output 'stopping telegram...'
+  scoop update 6>&1 | Write-Verbose
+
+  $status_output = scoop status 6>&1
+  $status_output
+  if ($status_output -match $telegram) {
+    Write-Output '- Stopping telegram...'
     Get-Process $telegram | Stop-Process
   }
 
@@ -66,19 +74,42 @@ function Update-ScoopAndCleanAfter {
     scoop update *
   }
 
-  Write-Output 'Running scoop cleanup...'
+  Write-Output '- Running scoop cleanup...'
   scoop cleanup *
 
-  Write-Output 'Clearing cache...'
+  Write-Output '- Clearing cache...'
   scoop cache show
   scoop cache rm *
 
   if ($out -match $telegram) {
-    Write-Output 'starting telegram...'
+    Write-Output '- Starting telegram...'
     & $telegram
   }
 }
 
+function Update-GitRepositoriesSafely {
+  [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, Position = 0)]
+    [System.IO.DirectoryInfo[]]
+    $Repositories
+  )
+
+  Write-Error 'NOT IMPLEMENTED'
+  return
+
+  if (-not $PSCmdlet.ShouldProcess('Update apps')) {
+    Write-Output 'Really?? Running git fetch is less risky than '
+  }
+  foreach ($repo in $Repositories) {
+
+    git -C $repo fetch --all
+    # TODO can i use status -s here??
+    git -C $repo status
+  }
+
+}
 ########################################################################################################################
 ####################################### JSCPD
 ########################################################################################################################
@@ -334,7 +365,7 @@ function Update-VsCodePortable {
     return
   }
 
-  Write-Output "Shutting down wsl just to be sure"
+  Write-Output 'Shutting down wsl just to be sure'
   wsl --shutdown
 
   if (Test-Path $Destination) {
