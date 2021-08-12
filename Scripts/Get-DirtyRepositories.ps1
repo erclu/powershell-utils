@@ -6,7 +6,6 @@ param (
   [string]
   $SaveToVariable
 )
-
 # TODO export type data?
 # Update-TypeData ...
 
@@ -63,24 +62,24 @@ function Test-HasIgnoredFilesAndFolder {
   )
 
   return ( git -C $path status -s --ignored ) |
-    Select-String -Pattern "^!!" |
+    Select-String -Pattern '^!!' |
     Measure-Object |
     Select-Object -ExpandProperty Count
 }
 
-Write-Output "Searching for repositories in $RootFolder ..."
+Write-Information -InformationAction Continue "Searching for repositories in $RootFolder ..."
 
 $repos = Get-ChildItem -Verbose -Directory -Force -Recurse $RootFolder |
-  Where-Object FullName -NotMatch "node_modules" |
-  Where-Object FullName -NotMatch "vendor" |
-  Where-Object FullName -NotMatch "Library" |
-  Where-Object FullName -Match ".git$" |
+  Where-Object FullName -NotMatch 'node_modules' |
+  Where-Object FullName -NotMatch 'vendor' |
+  Where-Object FullName -NotMatch 'Library' |
+  Where-Object FullName -Match '.git$' |
   ForEach-Object {
     Write-Verbose "scanning $($_.FullName)"
     $_
   }
 
-Write-Output "found $($repos.Length) repos; checking status..."
+Write-Information -InformationAction Continue "found $($repos.Length) repos; checking status..."
 
 $repos |
   ForEach-Object {
@@ -93,7 +92,7 @@ $repos |
     $ignoredFilesAndFolders = Test-HasIgnoredFilesAndFolder $workTree
 
     [pscustomobject]@{
-      PSTypename         = "GitRepo"
+      PSTypename         = 'GitRepo'
       Repo               = $workTree
       AllGood            = -not ($uncommittedChanges -or $hasNoRemote -or $unpushedCommits -or $forgottenStashes )
       UncommittedChanges = $uncommittedChanges
