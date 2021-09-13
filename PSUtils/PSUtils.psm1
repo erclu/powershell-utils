@@ -93,20 +93,29 @@ function Update-GitRepositoriesSafely {
   param (
     [Parameter(Mandatory, Position = 0)]
     [System.IO.DirectoryInfo[]]
-    $Repositories
+    $RootRepositoriesFolder
   )
 
-  Write-Error 'NOT IMPLEMENTED'
-  return
-
   if (-not $PSCmdlet.ShouldProcess('Update apps')) {
-    Write-Output 'Really?? Running git fetch is less risky than '
-  }
-  foreach ($repo in $Repositories) {
+    Write-Output 'Really?? Running git fetch is reaaaaaaally low risk'
+
+  }Write-Information -InformationAction Continue "Searching for repositories in $RootRepositoriesFolder ..."
+
+  $repos = Get-ChildItem -Verbose -Directory -Force -Recurse $RootRepositoriesFolder |
+    Where-Object FullName -NotMatch 'node_modules' |
+    Where-Object FullName -NotMatch 'vendor' |
+    Where-Object FullName -NotMatch 'Library' |
+    Where-Object FullName -Match '.git$' |
+    ForEach-Object {
+      Write-Verbose "scanning $($_.FullName)"
+      $_
+    }
+
+  foreach ($gitFolder in $repos) {
+    $repo = Split-Path -Path $gitFolder -Parent
 
     git -C $repo fetch --all
-    # TODO can i use status -s here??
-    git -C $repo status
+    git -C $repo status --short --branch | Select-String "##"
   }
 
 }
