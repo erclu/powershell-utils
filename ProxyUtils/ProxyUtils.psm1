@@ -78,6 +78,7 @@ function Enable-Proxy {
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 1
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyServer -Value $ProxyServer
       Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyOverride -Value ($Exclusions -join ';')
+      Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name AutoConfigURL -Value ''
 
       $ProxyUrl = "http://$ProxyServer"
 
