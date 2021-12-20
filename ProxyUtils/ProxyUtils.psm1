@@ -32,8 +32,12 @@ function Get-Proxy {
 
   Get-ItemProperty -Path $PROXY_REGISTRY_PATH | Select-Object @arguments
 
-  Write-Output "all_proxy: $($env:all_proxy)"
-  Write-Output "no_proxy: $($env:no_proxy)"
+  [PSCustomObject]@{
+    all_proxy   = $env:all_proxy
+    http_proxy  = $env:http_proxy
+    https_proxy = $env:https_proxy
+    no_proxy    = $env:no_proxy
+  } | Format-List
 
   if ($ShowWinHttpProxy) {
     netsh winhttp show proxy
