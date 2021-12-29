@@ -69,7 +69,9 @@ function Enable-Proxy {
     [Switch]
     $TestProxyAvailability,
     [Switch]
-    $Beep
+    $Beep,
+    [Switch]
+    $Wait
   )
 
   process {
@@ -113,8 +115,11 @@ function Enable-Proxy {
     if ($Beep) {
       [System.Console]::Beep()
     }
-    # Write-Output 'Press any key to continue...'
-    # $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+
+    if ($Wait) {
+      Write-Output 'Press any key to continue...'
+      $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+    }
   }
 }
 
@@ -130,7 +135,9 @@ function Disable-Proxy {
     [Switch]
     $IncludeWsl,
     [Switch]
-    $Beep
+    $Beep,
+    [Switch]
+    $Wait
   )
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
@@ -170,15 +177,18 @@ function Disable-Proxy {
   if ($Beep) {
     [System.Console]::Beep()
   }
-  # Write-Output 'Press any key to continue...'
-  # $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+
+  if ($Wait) {
+    Write-Output 'Press any key to continue...'
+    $null = $Host.UI.RawUI.ReadKey('NoEcho,IncludeKeyDown')
+  }
 }
 
 function Enable-WslProxy {
   [CmdletBinding()]
   param ()
 
-  wsl -d ubuntu -- bash -i -c 'enable-proxy'
+  wsl -d ubuntu -- bash -i -c 'enable-proxy && accept-igt-proxy'
 }
 
 function Disable-WslProxy {
