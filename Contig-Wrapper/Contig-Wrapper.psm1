@@ -4,7 +4,11 @@ if (-not (Get-Command -ErrorAction SilentlyContinue Contig.exe) ) {
 }
 
 function Invoke-Contig {
-  Contig.exe -nobanner $args | Write-Output
+  Write-Output ("+" * 80)
+  Contig.exe -nobanner $args
+  Write-Output ("-" * 80)
+  # Contig.exe -nobanner $args | Write-Output
+  # Contig64.exe -nobanner $args | Write-Output
 }
 
 Set-Alias contig Invoke-Contig

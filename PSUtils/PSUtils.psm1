@@ -91,9 +91,9 @@ function Update-GitRepositoriesSafely {
   [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'Low')]
   [CmdletBinding()]
   param (
-    [Parameter(Mandatory, Position = 0)]
+    [Parameter(Position = 0)]
     [System.IO.DirectoryInfo[]]
-    $RootRepositoriesFolder
+    $RootRepositoriesFolder = (Get-Item $env:PROJECTS_FOLDER)
   )
 
   if (-not $PSCmdlet.ShouldProcess('Update apps')) {
