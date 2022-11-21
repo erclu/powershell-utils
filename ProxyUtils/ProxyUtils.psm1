@@ -33,7 +33,7 @@ function Get-Proxy {
   Get-ItemProperty -Path $PROXY_REGISTRY_PATH | Select-Object @arguments
 
   [PSCustomObject]@{
-    all_proxy   = $env:all_proxy
+    # all_proxy   = $env:all_proxy
     http_proxy  = $env:http_proxy
     https_proxy = $env:https_proxy
     no_proxy    = $env:no_proxy
@@ -88,11 +88,11 @@ function Enable-Proxy {
 
       $ProxyUrl = "http://$ProxyServer"
 
-      $env:all_proxy = $ProxyUrl
+      # $env:all_proxy = $ProxyUrl
       $env:http_proxy = $ProxyUrl
       $env:https_proxy = $ProxyUrl
       $env:no_proxy = $Exclusions -join ','
-      [Environment]::SetEnvironmentVariable('all_proxy', $env:all_proxy, 'User')
+      # [Environment]::SetEnvironmentVariable('all_proxy', $env:all_proxy, 'User')
       [Environment]::SetEnvironmentVariable('http_proxy', $env:http_proxy, 'User')
       [Environment]::SetEnvironmentVariable('https_proxy', $env:https_proxy, 'User')
       [Environment]::SetEnvironmentVariable('no_proxy', $env:no_proxy , 'User')
@@ -142,14 +142,14 @@ function Disable-Proxy {
 
   Set-ItemProperty -Path $PROXY_REGISTRY_PATH -Name ProxyEnable -Value 0
 
-  [Environment]::SetEnvironmentVariable('all_proxy', $null, 'User')
+  # [Environment]::SetEnvironmentVariable('all_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('http_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('https_proxy', $null, 'User')
   [Environment]::SetEnvironmentVariable('no_proxy', $null, 'User')
 
   # Remove from current shell if present
   @(
-    'Env:\all_proxy'
+    # 'Env:\all_proxy'
     'Env:\http_proxy'
     'Env:\https_proxy'
     'Env:\no_proxy'
