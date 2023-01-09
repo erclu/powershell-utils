@@ -49,7 +49,7 @@ function Update-EverythingHaphazardly {
 
   Update-ScoopAndCleanAfter
 
-  Update-GitRepositoriesSafely
+  Update-GitRepositoriesSafely | Format-Table
 }
 
 function Update-ScoopAndCleanAfter {
@@ -99,7 +99,8 @@ function Update-GitRepositoriesSafely {
   if (-not $PSCmdlet.ShouldProcess('Update apps')) {
     Write-Output 'Really?? Running git fetch is reaaaaaaally low risk'
 
-  }Write-Information -InformationAction Continue "Searching for repositories in $RootRepositoriesFolder ..."
+  }
+  Write-Information -InformationAction Continue "Searching for repositories in $RootRepositoriesFolder ..."
 
   $repos = Get-ChildItem -Verbose -Directory -Force -Recurse $RootRepositoriesFolder |
     Where-Object FullName -NotMatch 'node_modules' |
@@ -115,9 +116,8 @@ function Update-GitRepositoriesSafely {
     $repo = Split-Path -Path $gitFolder -Parent
 
     git -C $repo fetch --all
-    git -C $repo status --short --branch | Select-String "##"
+    git -C $repo status --short --branch | Select-String '##'
   }
-
 }
 ########################################################################################################################
 ####################################### JSCPD
